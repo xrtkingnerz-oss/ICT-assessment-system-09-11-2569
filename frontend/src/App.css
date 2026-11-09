@@ -1870,7 +1870,7 @@ td b {
 /* Clear, comfortable Sarabun typography with a little extra visual polish. */
 .sidebar nav a {
   min-height: 47px;
-  font-size: 16px;
+  font-size: 15px;
 }
 .nav-label,
 .eyebrow,
@@ -1882,43 +1882,43 @@ td b {
 .public-card .eyebrow,
 .login-card .eyebrow,
 .copyright {
-  font-size: 14px;
+  font-size: 13px;
 }
 .profile-mini b,
 .top-user b {
-  font-size: 15px;
+  font-size: 14px;
 }
 .brand b {
-  font-size: 17px;
+  font-size: 16px;
 }
 .page-header {
   padding-bottom: 22px;
 }
 .page-header h1 {
-  font-size: 30px;
+  font-size: 28px;
   line-height: 1.35;
 }
 .page-header p {
-  font-size: 16px;
+  font-size: 15px;
   line-height: 1.55;
 }
 .login-message p {
-  font-size: 16px;
+  font-size: 15px;
   line-height: 1.75;
 }
 .button {
   min-height: 42px;
-  font-size: 16px;
+  font-size: 15px;
 }
 .stat-card {
   padding: 19px 20px 17px;
   min-height: 154px;
 }
 .stat-title {
-  font-size: 15px;
+  font-size: 14px;
 }
 .stat-value {
-  font-size: 30px;
+  font-size: 28px;
   line-height: 1.2;
 }
 .stat-value small,
@@ -1966,7 +1966,7 @@ td b {
 .user-form input:not([type="checkbox"]),
 .user-form select,
 .question-row {
-  font-size: 16px;
+  font-size: 15px;
 }
 .stat-value small,
 .table-sub,
@@ -1983,23 +1983,23 @@ th,
 .narrow h3,
 .text-action-button,
 .question-row > b {
-  font-size: 14px;
+  font-size: 13px;
 }
 .panel-head h2,
 .form-panel h2,
 .qr-panel h2 {
-  font-size: 18px;
+  font-size: 17px;
 }
 .table-wrap table {
-  font-size: 15px;
+  font-size: 14px;
 }
 .login-card h2,
 .public-card h1 {
-  font-size: 30px;
+  font-size: 28px;
 }
 .public-fields label,
 .public-question > label {
-  font-size: 16px;
+  font-size: 15px;
   line-height: 1.55;
 }
 .pagination-bar .button {
@@ -2085,25 +2085,25 @@ th {
 }
 @media (max-width: 760px) {
   .page-header h1 {
-    font-size: 26px;
+    font-size: 25px;
   }
   .page-header p {
-    font-size: 15px;
-  }
-  .stat-title {
     font-size: 14px;
   }
+  .stat-title {
+    font-size: 13px;
+  }
   .stat-value {
-    font-size: 26px;
+    font-size: 25px;
   }
   .login-message h1 {
     font-size: 26px;
   }
   .public-card h1 {
-    font-size: 25px;
+    font-size: 24px;
   }
   .button {
-    font-size: 15px;
+    font-size: 14px;
   }
 }
 .public-page {
@@ -2158,20 +2158,20 @@ th {
 .public-form-heading-card .eyebrow {
   margin: 0 0 6px;
   color: #357ca0;
-  font-size: 15px;
+  font-size: 14px;
   font-weight: 600;
 }
 .public-form-heading-card h1 {
   margin: 0;
   color: #243f53;
-  font-size: 32px;
+  font-size: 30px;
   line-height: 1.35;
   font-weight: 600;
 }
 .public-form-heading-card > p {
   margin: 12px 0 20px;
   color: #667985;
-  font-size: 16px;
+  font-size: 15px;
   line-height: 1.7;
   white-space: pre-line;
 }
@@ -2192,7 +2192,7 @@ th {
 .respondent-card h2 {
   margin: 0 0 16px;
   color: #385368;
-  font-size: 19px;
+  font-size: 18px;
   font-weight: 600;
 }
 .public-fields {
@@ -2206,7 +2206,7 @@ th {
   grid-column: auto;
   gap: 8px;
   color: #435967;
-  font-size: 15px;
+  font-size: 14px;
 }
 .public-fields label:first-child {
   grid-column: 1 / -1;
@@ -2223,7 +2223,7 @@ th {
   border: 1px solid #d5dde2;
   border-radius: 8px;
   background: #fff;
-  font-size: 16px;
+  font-size: 15px;
 }
 .public-form-card.public-question {
   margin: 0;
@@ -2237,7 +2237,7 @@ th {
   display: block;
   margin: 0 0 17px;
   color: #304b5d;
-  font-size: 17px;
+  font-size: 16px;
   line-height: 1.65;
 }
 .public-question > label b {
@@ -2252,7 +2252,7 @@ th {
   border-radius: 0;
   background: transparent;
   color: #263e50;
-  font-size: 16px;
+  font-size: 15px;
   outline: 0;
 }
 .public-question > input:focus,
@@ -2273,7 +2273,7 @@ th {
   padding: 9px 12px;
   border-radius: 8px;
   color: #465b67;
-  font-size: 16px;
+  font-size: 15px;
   transition: background 0.15s;
 }
 .choice-list label:hover {
@@ -2311,7 +2311,7 @@ th {
   border-radius: 50%;
   background: #fff;
   color: #526b7a;
-  font-size: 16px;
+  font-size: 15px;
   transition:
     background 0.15s,
     border-color 0.15s,
@@ -2351,13 +2351,13 @@ th {
   min-width: 150px;
   min-height: 46px;
   border-radius: 9px;
-  font-size: 16px;
+  font-size: 15px;
 }
 .public-form-footer-card .privacy-note {
   justify-content: flex-start;
   margin-top: 16px;
   color: #6e8795;
-  font-size: 14px;
+  font-size: 13px;
 }
 @media (max-width: 760px) {
   .public-page {
@@ -2372,7 +2372,7 @@ th {
     padding: 21px 19px;
   }
   .public-form-heading-card h1 {
-    font-size: 27px;
+    font-size: 25px;
   }
   .public-form-heading-card .public-brand {
     margin-bottom: 18px;
@@ -2385,7 +2385,7 @@ th {
     grid-column: auto;
   }
   .public-question > label {
-    font-size: 16px;
+    font-size: 14px;
   }
   .rating-options {
     justify-content: space-between;
@@ -2418,7 +2418,7 @@ th {
   gap: 8px;
   max-width: 560px;
   color: #496479;
-  font-size: 15px;
+  font-size: 14px;
   font-weight: 600;
 }
 .report-controls select {
