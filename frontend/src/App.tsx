@@ -1404,6 +1404,7 @@ function UsersPage() {
 function CategoriesPage({ user }: { user: User }) {
   const [items, setItems] = useState<Category[]>([]);
   const [search, setSearch] = useState("");
+  const [usageFilter, setUsageFilter] = useState("ALL");
   const [modalOpen, setModalOpen] = useState(false);
   const [editingCategory, setEditingCategory] = useState<Category | null>(null);
   const [message, setMessage] = useState("");
@@ -1414,11 +1415,17 @@ function CategoriesPage({ user }: { user: User }) {
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
   const canManageCategories = user.role === "ADMIN";
-  const filteredItems = items.filter((category) =>
-    `${category.name} ${category.description || ""}`
+  const filteredItems = items.filter((category) => {
+    const matchesSearch = `${category.name} ${category.description || ""}`
       .toLocaleLowerCase("th")
-      .includes(search.trim().toLocaleLowerCase("th")),
-  );
+      .includes(search.trim().toLocaleLowerCase("th"));
+    const assessmentCount = category._count?.assessments || 0;
+    const matchesUsage =
+      usageFilter === "ALL" ||
+      (usageFilter === "USED" && assessmentCount > 0) ||
+      (usageFilter === "UNUSED" && assessmentCount === 0);
+    return matchesSearch && matchesUsage;
+  });
 
   const load = async () => {
     try {
@@ -1551,7 +1558,7 @@ function CategoriesPage({ user }: { user: User }) {
             เท่านั้นที่เพิ่มหรือแก้ไขได้
           </div>
         )}
-        <div className="user-toolbar">
+        <div className="user-toolbar category-toolbar">
           <label className="searchbox">
             <Search size={18} />
             <input
@@ -1561,8 +1568,17 @@ function CategoriesPage({ user }: { user: User }) {
               onChange={(event) => setSearch(event.target.value)}
             />
           </label>
+          <select
+            aria-label="กรองตามการใช้งานหมวดหมู่"
+            value={usageFilter}
+            onChange={(event) => setUsageFilter(event.target.value)}
+          >
+            <option value="ALL">ทุกหมวดหมู่</option>
+            <option value="USED">มีแบบประเมิน</option>
+            <option value="UNUSED">ยังไม่มีแบบประเมิน</option>
+          </select>
           <span className="user-result-count">
-            ทั้งหมด {items.length} หมวดหมู่
+            แสดง {filteredItems.length} จาก {items.length} หมวดหมู่
           </span>
         </div>
         {message && (

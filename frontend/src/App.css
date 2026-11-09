@@ -1517,6 +1517,20 @@ td b {
 .category-table {
   min-width: 680px;
 }
+.category-toolbar {
+  max-width: 980px;
+}
+.category-toolbar select {
+  width: 190px;
+  min-width: 0;
+  height: 42px;
+  padding: 0 12px;
+  border: 1px solid #e1e7ec;
+  border-radius: 9px;
+  background: #fff;
+  color: #526579;
+  font: inherit;
+}
 .category-name-cell {
   display: flex;
   align-items: center;
