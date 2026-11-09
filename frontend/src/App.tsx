@@ -166,9 +166,9 @@ function Shell({
   const links = [
     { to: "/", label: "ภาพรวม", icon: LayoutDashboard },
     { to: "/assessments", label: "แบบประเมิน", icon: ClipboardList },
-    { to: "/categories", label: "หมวดหมู่", icon: FolderKanban },
+    { to: "/categories", label: "จัดการหมวดหมู่", icon: FolderKanban },
     ...(user.role === "ADMIN"
-      ? [{ to: "/users", label: "ผู้ใช้งาน", icon: Users }]
+      ? [{ to: "/users", label: "จัดการผู้ใช้งาน", icon: Users }]
       : []),
     { to: "/reports", label: "รายงานผล", icon: BarChart3 },
   ];
