@@ -19,12 +19,14 @@ import {
   ArrowDownToLine,
   BarChart3,
   ClipboardList,
+  FileDown,
   FolderKanban,
   LayoutDashboard,
   LogOut,
   Menu,
   Pencil,
   Plus,
+  Printer,
   Search,
   Settings,
   ShieldOff,
@@ -1755,25 +1757,120 @@ function ReportsPage() {
   const [items, setItems] = useState<Assessment[]>([]);
   const [selected, setSelected] = useState("");
   const [data, setData] = useState<any>();
+  const [reportError, setReportError] = useState("");
+  const [isLoadingReport, setIsLoadingReport] = useState(false);
+  const selectedAssessment = items.find(
+    (assessment) => assessment.id === selected,
+  );
+
   useEffect(() => {
     api.get("/assessments").then((r) => setItems(r.data.data.items));
   }, []);
+
   useEffect(() => {
-    if (selected)
-      api
-        .get(`/reports/assessments/${selected}`)
-        .then((r) => setData(r.data.data))
-        .catch(() => setData(null));
+    setData(undefined);
+    setReportError("");
+    if (!selected) {
+      setIsLoadingReport(false);
+      return;
+    }
+
+    let cancelled = false;
+    setIsLoadingReport(true);
+    api
+      .get(`/reports/assessments/${selected}`)
+      .then((r) => {
+        if (!cancelled) setData(r.data.data);
+      })
+      .catch((error) => {
+        if (!cancelled) {
+          setReportError(
+            error.response?.data?.error?.message || "โหลดรายงานไม่สำเร็จ",
+          );
+        }
+      })
+      .finally(() => {
+        if (!cancelled) setIsLoadingReport(false);
+      });
+
+    return () => {
+      cancelled = true;
+    };
   }, [selected]);
+
+  const scoreQuestions = (data?.questions || []).filter(
+    (question: any) => question.average !== null,
+  );
+  const highestQuestion = [...scoreQuestions].sort(
+    (a: any, b: any) => b.average - a.average,
+  )[0];
+  const lowestQuestion = [...scoreQuestions].sort(
+    (a: any, b: any) => a.average - b.average,
+  )[0];
+
+  async function exportCsv() {
+    try {
+      const response = await api.get(
+        `/reports/assessments/${selected}/export`,
+        { responseType: "blob" },
+      );
+      const url = URL.createObjectURL(response.data);
+      const anchor = document.createElement("a");
+      anchor.href = url;
+      anchor.download = `assessment-report-${selected}.csv`;
+      anchor.click();
+      URL.revokeObjectURL(url);
+    } catch (error: any) {
+      setReportError(
+        error.response?.data?.error?.message || "ส่งออก CSV ไม่สำเร็จ",
+      );
+    }
+  }
+
+  function printReport() {
+    const previousTitle = document.title;
+    const title = (selectedAssessment?.title || "assessment-report")
+      .replace(/[\\/:*?"<>|]/g, "-")
+      .trim();
+    document.title = `รายงานผล-${title}`;
+    const restoreTitle = () => {
+      document.title = previousTitle;
+      window.removeEventListener("afterprint", restoreTitle);
+    };
+    window.addEventListener("afterprint", restoreTitle);
+    window.print();
+  }
+
   return (
     <section className="content">
-      <PageHeader title="รายงานผล" subtitle="สรุปคำตอบและคะแนนจากข้อมูลจริง" />
-      <div className="panel form-panel">
+      <PageHeader
+        title="รายงานผล"
+        subtitle="สรุปผลรายแบบประเมินจากคำตอบที่ได้รับ"
+        action={
+          selected && data ? (
+            <div className="report-header-actions">
+              <button
+                className="button outline"
+                onClick={() => void exportCsv()}
+              >
+                <ArrowDownToLine size={17} /> ส่งออก CSV
+              </button>
+              <button className="button outline" onClick={printReport}>
+                <Printer size={17} /> พิมพ์รายงาน
+              </button>
+              <button className="button primary" onClick={printReport}>
+                <FileDown size={17} /> ส่งออก PDF
+              </button>
+            </div>
+          ) : undefined
+        }
+      />
+      <div className="panel form-panel report-controls">
         <label>
           เลือกแบบประเมิน
           <select
             value={selected}
-            onChange={(e) => setSelected(e.target.value)}
+            onChange={(event) => setSelected(event.target.value)}
           >
             <option value="">เลือกแบบประเมิน</option>
             {items.map((a) => (
@@ -1783,110 +1880,158 @@ function ReportsPage() {
             ))}
           </select>
         </label>
-        {data && (
-          <>
-            <div className="stat-grid report-stat-grid">
-              <div className="stat-card">
-                <div className="stat-icon blue">
-                  <Users size={18} />
-                </div>
-                <div className="stat-title">ผู้ตอบทั้งหมด</div>
-                <div className="stat-value">
-                  {data.summary.total}
-                  <small>คน</small>
-                </div>
-                <div className="stat-foot">จำนวนคำตอบของแบบประเมินนี้</div>
+      </div>
+      {reportError && <div className="alert error">{reportError}</div>}
+      {isLoadingReport && (
+        <div className="loading report-loading">
+          <span className="spinner" /> กำลังจัดทำรายงาน…
+        </div>
+      )}
+      {data && (
+        <div className="report-print-area">
+          <div className="report-document-heading">
+            <div className="eyebrow">ICT ASSESSMENT REPORT</div>
+            <h2>{data.assessment.title}</h2>
+            <p>
+              จัดทำเมื่อ{" "}
+              {new Intl.DateTimeFormat("th-TH", {
+                dateStyle: "long",
+              }).format(new Date())}
+            </p>
+          </div>
+          <section className="report-summary-card">
+            <div className="report-summary-heading">
+              <span className="report-summary-icon">
+                <BarChart3 size={19} />
+              </span>
+              <div>
+                <div className="eyebrow">EXECUTIVE SUMMARY</div>
+                <h2>สรุปรายงานผลการประเมิน</h2>
               </div>
-              <div className="stat-card">
-                <div className="stat-icon green">
-                  <ShieldCheck size={18} />
-                </div>
-                <div className="stat-title">ผู้ตอบภายใน</div>
-                <div className="stat-value">
-                  {data.summary.internal}
-                  <small>คน</small>
-                </div>
-                <div className="stat-foot">บุคลากรภายในหน่วยงาน</div>
-              </div>
-              <div className="stat-card">
-                <div className="stat-icon purple">
-                  <Users size={18} />
-                </div>
-                <div className="stat-title">ผู้ตอบภายนอก</div>
-                <div className="stat-value">
-                  {data.summary.external}
-                  <small>คน</small>
-                </div>
-                <div className="stat-foot">ผู้รับบริการภายนอก</div>
-              </div>
-              <div className="stat-card">
-                <div className="stat-icon orange">
-                  <Activity size={18} />
-                </div>
-                <div className="stat-title">คะแนนเฉลี่ย</div>
-                <div className="stat-value">
+            </div>
+            {data.summary.total ? (
+              <>
+                <p>
+                  แบบประเมินนี้มีผู้ตอบทั้งหมด {data.summary.total} คน
+                  แบ่งเป็นบุคลากรภายใน {data.summary.internal} คน และบุคคลภายนอก{" "}
+                  {data.summary.external} คน
                   {data.summary.average == null
-                    ? "—"
-                    : data.summary.average.toFixed(2)}
-                  <small>/ 5</small>
-                </div>
-                <div className="stat-foot">คำนวณจากคำถามแบบให้คะแนน</div>
+                    ? " โดยแบบประเมินนี้ไม่มีคะแนนเฉลี่ยจากคำถามแบบให้คะแนน"
+                    : ` คะแนนเฉลี่ยรวม ${data.summary.average.toFixed(2)} จาก 5 คะแนน`}
+                  .
+                </p>
+                {highestQuestion && (
+                  <ul>
+                    <li>
+                      คะแนนเฉลี่ยสูงสุด: “{highestQuestion.question}” ({" "}
+                      {highestQuestion.average.toFixed(2)} / 5)
+                    </li>
+                    {lowestQuestion &&
+                      lowestQuestion.id !== highestQuestion.id && (
+                        <li>
+                          คะแนนเฉลี่ยต่ำสุด: “{lowestQuestion.question}” ({" "}
+                          {lowestQuestion.average.toFixed(2)} / 5)
+                        </li>
+                      )}
+                  </ul>
+                )}
+              </>
+            ) : (
+              <p>
+                แบบประเมินนี้ยังไม่มีผู้ตอบ จึงยังไม่มีข้อมูลเพียงพอสำหรับสรุปผล
+              </p>
+            )}
+          </section>
+          <div className="stat-grid report-stat-grid">
+            <div className="stat-card">
+              <div className="stat-icon blue">
+                <Users size={18} />
               </div>
+              <div className="stat-title">ผู้ตอบทั้งหมด</div>
+              <div className="stat-value">
+                {data.summary.total}
+                <small>คน</small>
+              </div>
+              <div className="stat-foot">จำนวนคำตอบของแบบประเมินนี้</div>
             </div>
-            <div className="button-row">
-              <button
-                className="button outline"
-                onClick={async () => {
-                  const r = await api.get(
-                    `/reports/assessments/${selected}/export`,
-                    { responseType: "blob" },
-                  );
-                  const url = URL.createObjectURL(r.data);
-                  const a = document.createElement("a");
-                  a.href = url;
-                  a.download = "assessment-report.csv";
-                  a.click();
-                  URL.revokeObjectURL(url);
-                }}
-              >
-                <ArrowDownToLine size={16} />
-                ส่งออก CSV
-              </button>
-              <button className="button outline" onClick={() => window.print()}>
-                พิมพ์รายงาน
-              </button>
+            <div className="stat-card">
+              <div className="stat-icon green">
+                <ShieldCheck size={18} />
+              </div>
+              <div className="stat-title">ผู้ตอบภายใน</div>
+              <div className="stat-value">
+                {data.summary.internal}
+                <small>คน</small>
+              </div>
+              <div className="stat-foot">บุคลากรภายในหน่วยงาน</div>
             </div>
-            <div className="table-wrap">
-              <table>
-                <thead>
-                  <tr>
-                    <th>คำถาม</th>
-                    <th>ประเภท</th>
-                    <th>คะแนนเฉลี่ย</th>
-                    <th>ตัวเลือก/คำตอบ</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {data.questions.map((q: any) => (
-                    <tr key={q.id}>
-                      <td>{q.question}</td>
-                      <td>{q.type}</td>
-                      <td>{q.average == null ? "—" : q.average.toFixed(2)}</td>
+            <div className="stat-card">
+              <div className="stat-icon purple">
+                <Users size={18} />
+              </div>
+              <div className="stat-title">ผู้ตอบภายนอก</div>
+              <div className="stat-value">
+                {data.summary.external}
+                <small>คน</small>
+              </div>
+              <div className="stat-foot">ผู้รับบริการภายนอก</div>
+            </div>
+            <div className="stat-card">
+              <div className="stat-icon orange">
+                <Activity size={18} />
+              </div>
+              <div className="stat-title">คะแนนเฉลี่ย</div>
+              <div className="stat-value">
+                {data.summary.average == null
+                  ? "—"
+                  : data.summary.average.toFixed(2)}
+                <small>/ 5</small>
+              </div>
+              <div className="stat-foot">คำนวณจากคำถามแบบให้คะแนน</div>
+            </div>
+          </div>
+          <div className="table-wrap report-question-table">
+            <table>
+              <thead>
+                <tr>
+                  <th>คำถาม</th>
+                  <th>ประเภท</th>
+                  <th>คะแนนเฉลี่ย</th>
+                  <th>ตัวเลือก/คำตอบ</th>
+                </tr>
+              </thead>
+              <tbody>
+                {data.questions.length ? (
+                  data.questions.map((question: any) => (
+                    <tr key={question.id}>
+                      <td>{question.question}</td>
+                      <td>{question.type}</td>
                       <td>
-                        {Object.entries(q.options)
-                          .map(([k, v]) => `${k}: ${v}`)
+                        {question.average == null
+                          ? "—"
+                          : question.average.toFixed(2)}
+                      </td>
+                      <td>
+                        {Object.entries(question.options)
+                          .map(([key, value]) => `${key}: ${value}`)
                           .join(" · ") ||
-                          q.texts.slice(0, 3).join(" · ") ||
+                          question.texts.slice(0, 3).join(" · ") ||
                           "—"}
                       </td>
                     </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          </>
-        )}
-      </div>
+                  ))
+                ) : (
+                  <tr>
+                    <td colSpan={4} className="users-state-cell">
+                      ยังไม่มีคำตอบสำหรับแบบประเมินนี้
+                    </td>
+                  </tr>
+                )}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      )}
     </section>
   );
 }
