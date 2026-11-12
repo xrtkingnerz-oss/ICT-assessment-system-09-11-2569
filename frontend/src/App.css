@@ -1577,6 +1577,76 @@ td b {
   background: #edf9f2;
   color: #317a57;
 }
+.success-toast-layer {
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  display: grid;
+  place-items: center;
+  padding: 20px;
+  background: rgba(12, 34, 52, 0.2);
+  animation: toast-backdrop-in 0.16s ease-out both;
+}
+.success-toast {
+  display: grid;
+  justify-items: center;
+  gap: 8px;
+  width: min(360px, 100%);
+  padding: 28px 30px 25px;
+  border: 1px solid #d8ebe2;
+  border-radius: 20px;
+  background: #fff;
+  box-shadow: 0 24px 80px rgba(16, 43, 62, 0.22);
+  color: #526b7a;
+  text-align: center;
+  animation: toast-card-in 0.24s cubic-bezier(0.2, 0.8, 0.2, 1) both;
+}
+.success-toast-icon {
+  display: grid;
+  width: 62px;
+  height: 62px;
+  margin-bottom: 5px;
+  place-items: center;
+  border: 5px solid #e8f7ef;
+  border-radius: 50%;
+  background: linear-gradient(145deg, #41ad7b, #23885e);
+  color: #fff;
+  box-shadow: 0 8px 20px rgba(46, 151, 102, 0.2);
+}
+.success-toast strong {
+  color: #204a3a;
+  font-size: 21px;
+  font-weight: 700;
+}
+.success-toast > span:last-child {
+  color: #6f828b;
+  font-size: 15px;
+  line-height: 1.5;
+}
+@keyframes toast-backdrop-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+@keyframes toast-card-in {
+  from {
+    opacity: 0;
+    transform: translateY(8px) scale(0.96);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .success-toast-layer,
+  .success-toast {
+    animation-duration: 0.01ms;
+  }
+}
 
 /* KKICT visual identity: civic blue, clear cyan, and a small learning-green accent. */
 :root {

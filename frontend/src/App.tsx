@@ -18,6 +18,7 @@ import {
   Activity,
   ArrowDownToLine,
   BarChart3,
+  Check,
   ClipboardList,
   FileDown,
   FolderKanban,
@@ -97,6 +98,14 @@ const loginSchema = z.object({
   password: z.string().min(1, "กรุณากรอกรหัสผ่าน"),
 });
 const colors = ["#174c82", "#35a5c8", "#f0a64a", "#41a782", "#9a72c6"];
+const SUCCESS_TOAST_EVENT = "ict:success-toast";
+
+function showSuccessToast(message: string) {
+  window.dispatchEvent(
+    new CustomEvent(SUCCESS_TOAST_EVENT, { detail: { message } }),
+  );
+}
+
 function App() {
   return (
     <BrowserRouter>
@@ -106,7 +115,46 @@ function App() {
         <Route path="/success" element={<Success />} />
         <Route path="*" element={<Guard />} />
       </Routes>
+      <SuccessToastHost />
     </BrowserRouter>
+  );
+}
+
+function SuccessToastHost() {
+  const [message, setMessage] = useState("");
+
+  useEffect(() => {
+    let timeout: ReturnType<typeof setTimeout> | undefined;
+    const handleSuccess = (event: Event) => {
+      const detail = (event as CustomEvent<{ message?: string }>).detail;
+      setMessage(detail?.message || "บันทึกข้อมูลเรียบร้อยแล้ว");
+      if (timeout) clearTimeout(timeout);
+      timeout = setTimeout(() => setMessage(""), 2200);
+    };
+
+    window.addEventListener(SUCCESS_TOAST_EVENT, handleSuccess);
+    return () => {
+      window.removeEventListener(SUCCESS_TOAST_EVENT, handleSuccess);
+      if (timeout) clearTimeout(timeout);
+    };
+  }, []);
+
+  if (!message) return null;
+  return (
+    <div className="success-toast-layer" role="presentation">
+      <div
+        className="success-toast"
+        role="status"
+        aria-live="polite"
+        aria-atomic="true"
+      >
+        <span className="success-toast-icon">
+          <Check size={25} strokeWidth={3} />
+        </span>
+        <strong>ทำรายการเสร็จสิ้น</strong>
+        <span>{message}</span>
+      </div>
+    </div>
   );
 }
 function Guard() {
@@ -594,6 +642,7 @@ function AssessmentList() {
                           const response = await api.post(
                             `/assessments/${a.id}/duplicate`,
                           );
+                          showSuccessToast("ทำสำเนาแบบประเมินเรียบร้อยแล้ว");
                           navigate(`/assessments/${response.data.data.id}`);
                         } catch (error: any) {
                           setError(
@@ -657,6 +706,7 @@ function AssessmentEditor() {
       const response = await api.post(
         `/assessments/${assessment.id}/duplicate`,
       );
+      showSuccessToast("ทำสำเนาแบบประเมินเรียบร้อยแล้ว");
       navigate(`/assessments/${response.data.data.id}`);
     } catch (error: any) {
       setMessage(
@@ -681,6 +731,7 @@ function AssessmentEditor() {
         : await api.post("/assessments", body);
       setAssessment(r.data.data);
       setMessage("บันทึกข้อมูลแบบประเมินแล้ว");
+      showSuccessToast("บันทึกข้อมูลแบบประเมินเรียบร้อยแล้ว");
     } catch (err: any) {
       setMessage(err.response?.data?.error?.message || "บันทึกไม่สำเร็จ");
     }
@@ -720,6 +771,7 @@ function AssessmentEditor() {
         },
       ]);
       form.reset();
+      showSuccessToast("เพิ่มคำถามเรียบร้อยแล้ว");
     } catch (err: any) {
       setMessage(err.response?.data?.error?.message || "เพิ่มคำถามไม่สำเร็จ");
     }
@@ -734,6 +786,7 @@ function AssessmentEditor() {
       });
       setQrUrl(r.data.data.publicUrl);
       setMessage("เผยแพร่แบบประเมินแล้ว");
+      showSuccessToast("เผยแพร่แบบประเมินเรียบร้อยแล้ว");
     } catch (err: any) {
       setMessage(err.response?.data?.error?.message || "เผยแพร่ไม่สำเร็จ");
     }
@@ -932,6 +985,7 @@ function AssessmentEditor() {
                         try {
                           await api.delete(`/questions/${q.id}`);
                           setQuestions(questions.filter((_, n) => n !== i));
+                          showSuccessToast("ลบคำถามเรียบร้อยแล้ว");
                         } catch (e: any) {
                           setMessage(
                             e.response?.data?.error?.message ||
@@ -1072,6 +1126,9 @@ function UsersPage() {
       setMessageType("success");
       setModalOpen(false);
       setRefreshKey((value) => value + 1);
+      showSuccessToast(
+        editingUser ? "บันทึกการแก้ไขผู้ใช้แล้ว" : "เพิ่มบัญชีผู้ใช้แล้ว",
+      );
     } catch (error: any) {
       setFormError(
         error.response?.data?.error?.message || "บันทึกข้อมูลไม่สำเร็จ",
@@ -1090,6 +1147,7 @@ function UsersPage() {
       setMessage(`เปลี่ยนสถานะบัญชี ${user.fullName} แล้ว`);
       setMessageType("success");
       setRefreshKey((value) => value + 1);
+      showSuccessToast(`เปลี่ยนสถานะบัญชี ${user.fullName} เรียบร้อยแล้ว`);
     } catch (error: any) {
       setMessageType("error");
       setMessage(
@@ -1105,6 +1163,7 @@ function UsersPage() {
       await api.delete(`/users/${user.id}`);
       setMessage(`ลบบัญชี ${user.fullName} แล้ว`);
       setMessageType("success");
+      showSuccessToast(`ลบบัญชี ${user.fullName} เรียบร้อยแล้ว`);
       if (items.length === 1 && page > 1) setPage((value) => value - 1);
       else setRefreshKey((value) => value + 1);
     } catch (error: any) {
@@ -1508,6 +1567,11 @@ function CategoriesPage({ user }: { user: User }) {
       }
       setMessageType("success");
       setModalOpen(false);
+      showSuccessToast(
+        editingCategory
+          ? "บันทึกการแก้ไขหมวดหมู่แล้ว"
+          : "เพิ่มหมวดหมู่เรียบร้อยแล้ว",
+      );
     } catch (error: any) {
       const status = error.response?.status;
       const serverMessage = error.response?.data?.error?.message;
@@ -1534,6 +1598,7 @@ function CategoriesPage({ user }: { user: User }) {
       setItems((current) => current.filter((item) => item.id !== category.id));
       setMessage(`ลบหมวดหมู่ “${category.name}” แล้ว`);
       setMessageType("success");
+      showSuccessToast(`ลบหมวดหมู่ “${category.name}” เรียบร้อยแล้ว`);
     } catch (error: any) {
       setMessage(error.response?.data?.error?.message || "ลบหมวดหมู่ไม่สำเร็จ");
       setMessageType("error");
@@ -2000,6 +2065,7 @@ function ProfilePage({ user }: { user: User }) {
                 newPassword: f.get("newPassword"),
               });
               setMessage("เปลี่ยนรหัสผ่านแล้ว");
+              showSuccessToast("เปลี่ยนรหัสผ่านเรียบร้อยแล้ว");
             } catch (x: any) {
               setMessage(
                 x.response?.data?.error?.message || "เปลี่ยนรหัสผ่านไม่สำเร็จ",
