@@ -1412,6 +1412,10 @@ td b {
   background: #f7f9fb;
   color: #286d9b;
 }
+.icon-action:disabled {
+  cursor: not-allowed;
+  opacity: 0.42;
+}
 .icon-action.danger:hover {
   border-color: #f1d9d6;
   background: #fff5f4;
@@ -1585,8 +1589,8 @@ td b {
   place-items: center;
   padding: 20px;
   background: rgba(12, 34, 52, 0.2);
-  animation: toast-backdrop-in 0.14s ease-out both;
-  transition: opacity 0.2s ease;
+  animation: toast-backdrop-in 0.1s ease-out both;
+  transition: opacity 0.12s ease;
 }
 .success-toast-layer.is-leaving {
   opacity: 0;
@@ -1603,10 +1607,10 @@ td b {
   box-shadow: 0 24px 80px rgba(16, 43, 62, 0.22);
   color: #526b7a;
   text-align: center;
-  animation: toast-card-in 0.2s cubic-bezier(0.16, 1, 0.3, 1) both;
+  animation: toast-card-in 0.12s cubic-bezier(0.16, 1, 0.3, 1) both;
   transition:
-    opacity 0.2s ease,
-    transform 0.2s cubic-bezier(0.4, 0, 1, 1);
+    opacity 0.12s ease,
+    transform 0.12s cubic-bezier(0.4, 0, 1, 1);
 }
 .success-toast.is-leaving {
   opacity: 0;

@@ -133,8 +133,8 @@ function SuccessToastHost() {
       setIsLeaving(false);
       if (hideTimeout) clearTimeout(hideTimeout);
       if (removeTimeout) clearTimeout(removeTimeout);
-      hideTimeout = setTimeout(() => setIsLeaving(true), 1050);
-      removeTimeout = setTimeout(() => setMessage(""), 1270);
+      hideTimeout = setTimeout(() => setIsLeaving(true), 320);
+      removeTimeout = setTimeout(() => setMessage(""), 440);
     };
 
     window.addEventListener(SUCCESS_TOAST_EVENT, handleSuccess);
@@ -662,6 +662,38 @@ function AssessmentList() {
                       }}
                     >
                       ทำสำเนา
+                    </button>
+                    <button
+                      className="icon-action danger"
+                      title={
+                        a.responseCount
+                          ? "ลบไม่ได้ เนื่องจากแบบประเมินมีคำตอบแล้ว"
+                          : "ลบแบบประเมิน"
+                      }
+                      aria-label={`ลบแบบประเมิน ${a.title}`}
+                      disabled={Boolean(a.responseCount)}
+                      onClick={async () => {
+                        if (
+                          !window.confirm(
+                            `ลบแบบประเมิน “${a.title}” หรือไม่? การลบไม่สามารถย้อนกลับได้`,
+                          )
+                        )
+                          return;
+                        try {
+                          await api.delete(`/assessments/${a.id}`);
+                          setItems((current) =>
+                            current.filter((item) => item.id !== a.id),
+                          );
+                          showSuccessToast("ลบแบบประเมินเรียบร้อยแล้ว");
+                        } catch (deleteError: any) {
+                          setError(
+                            deleteError.response?.data?.error?.message ||
+                              "ลบแบบประเมินไม่สำเร็จ",
+                          );
+                        }
+                      }}
+                    >
+                      <Trash2 size={16} />
                     </button>
                   </div>
                 </td>
