@@ -122,28 +122,37 @@ function App() {
 
 function SuccessToastHost() {
   const [message, setMessage] = useState("");
+  const [isLeaving, setIsLeaving] = useState(false);
 
   useEffect(() => {
-    let timeout: ReturnType<typeof setTimeout> | undefined;
+    let hideTimeout: ReturnType<typeof setTimeout> | undefined;
+    let removeTimeout: ReturnType<typeof setTimeout> | undefined;
     const handleSuccess = (event: Event) => {
       const detail = (event as CustomEvent<{ message?: string }>).detail;
       setMessage(detail?.message || "บันทึกข้อมูลเรียบร้อยแล้ว");
-      if (timeout) clearTimeout(timeout);
-      timeout = setTimeout(() => setMessage(""), 2200);
+      setIsLeaving(false);
+      if (hideTimeout) clearTimeout(hideTimeout);
+      if (removeTimeout) clearTimeout(removeTimeout);
+      hideTimeout = setTimeout(() => setIsLeaving(true), 1050);
+      removeTimeout = setTimeout(() => setMessage(""), 1270);
     };
 
     window.addEventListener(SUCCESS_TOAST_EVENT, handleSuccess);
     return () => {
       window.removeEventListener(SUCCESS_TOAST_EVENT, handleSuccess);
-      if (timeout) clearTimeout(timeout);
+      if (hideTimeout) clearTimeout(hideTimeout);
+      if (removeTimeout) clearTimeout(removeTimeout);
     };
   }, []);
 
   if (!message) return null;
   return (
-    <div className="success-toast-layer" role="presentation">
+    <div
+      className={`success-toast-layer${isLeaving ? " is-leaving" : ""}`}
+      role="presentation"
+    >
       <div
-        className="success-toast"
+        className={`success-toast${isLeaving ? " is-leaving" : ""}`}
         role="status"
         aria-live="polite"
         aria-atomic="true"
